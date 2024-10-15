@@ -102,6 +102,15 @@ document.addEventListener('keydown', function(event) {
     }
 });
 
+// Handle input for the first word
+document.addEventListener('keydown', function(event) {
+    // Start the test on the first key press
+    if (!testStarted) {
+        startTest();
+    }
+});
+
+// Update results function
 function updateResults() {
     const timeElapsed = (new Date() - startTime) / 1000;
     const minutesTaken = timeElapsed / 60;
