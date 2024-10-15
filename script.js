@@ -41,18 +41,18 @@ function startTest() {
     
     // Start the timer
     let timeLeft = 15;
-    document.getElementById('timer').textContent = `Time: ${timeLeft}s`;
+    document.getElementById('timer').textContent = timeLeft; // Set initial countdown
 
     timerInterval = setInterval(() => {
         timeLeft--;
-        document.getElementById('timer').textContent = `Time: ${timeLeft}s`;
+        document.getElementById('timer').textContent = timeLeft; // Update timer display
         if (timeLeft <= 0) {
             endTest();
         }
     }, 1000);
 
     // Start generating prompts
-    generateNewPrompt();
+    currentPrompt = generateNewPrompt();
 }
 
 function generateNewPrompt() {
@@ -82,7 +82,7 @@ document.getElementById('input').addEventListener('input', function() {
     // Check if user has completed typing the prompt
     if (inputText === currentPrompt) {
         correctWordsTyped++;
-        generateNewPrompt(); // Get a new word
+        currentPrompt = generateNewPrompt(); // Get a new word
         this.value = ''; // Clear the input for the next word
         updateResults();
     }
@@ -107,5 +107,22 @@ function endTest() {
     document.getElementById('results').textContent = `Final WPM: ${wpm}, Final Accuracy: ${accuracy}%`;
 }
 
-// Start the test when the page loads
-startTest();
+// Listen for the Escape key to start a new test
+document.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape') {
+        resetTest();
+    }
+});
+
+function resetTest() {
+    clearInterval(timerInterval); // Stop any existing timer
+    testStarted = false; // Reset test state
+    totalCharactersTyped = 0; // Reset character count
+    correctWordsTyped = 0; // Reset correct word count
+    document.getElementById('results').textContent = 'WPM: 0, Accuracy: 0%'; // Reset results
+    document.getElementById('timer').textContent = '15'; // Reset timer
+    document.getElementById('prompt').textContent = ''; // Clear prompt
+    document.getElementById('input').value = ''; // Clear input
+    document.getElementById('input').style.opacity = 0.5; // Reset opacity for input
+    currentPrompt = generateNewPrompt(); // Start a new test
+}
