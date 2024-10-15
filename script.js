@@ -25,7 +25,7 @@ let startTime, timerInterval;
 let totalCharactersTyped = 0;
 let correctWordsTyped = 0;
 let testStarted = false;
-let promptsQueue = []; // Queue to hold upcoming words
+let currentPrompt = ""; // Current word to type
 
 function getRandomWord() {
     const shuffledWords = commonWords.sort(() => 0.5 - Math.random());
@@ -52,13 +52,14 @@ function startTest() {
         }
     }, 1000);
 
-    // Generate the initial queue of prompts
-    generateNewPrompts();
+    // Generate the first word prompt
+    generateNewPrompt();
 }
 
-function generateNewPrompts() {
-    promptsQueue = Array.from({ length: 15 }, getRandomWord);
-    document.getElementById('prompt').textContent = promptsQueue.join(' '); // Display the first set of words
+function generateNewPrompt() {
+    currentPrompt = getRandomWord(); // Get a new random word
+    document.getElementById('prompt').textContent = currentPrompt; // Display the word
+    document.getElementById('prompt').style.color = 'gray'; // Set initial color
 }
 
 document.getElementById('input').addEventListener('input', function() {
@@ -67,27 +68,21 @@ document.getElementById('input').addEventListener('input', function() {
 
     // Start the test on the first input
     if (!testStarted) {
-        startTest();
+        startTest(); // Start the test
     }
 
-    // Check if the input matches the beginning of the prompts
-    const currentPrompt = promptsQueue[0];
+    // Check if the input matches the current prompt
     if (currentPrompt.startsWith(inputText)) {
         document.getElementById('prompt').style.color = 'black'; // Change color to black on correct input
     } else {
         document.getElementById('prompt').style.color = 'red'; // Incorrect input
     }
 
-    // Check if user has completed typing the first word in the queue
+    // Check if user has completed typing the current word
     if (inputText === currentPrompt) {
         correctWordsTyped++;
-        promptsQueue.shift(); // Remove the completed word
-        // Generate a new word if the queue is empty
-        if (promptsQueue.length === 0) {
-            generateNewPrompts(); // Generate new prompts
-        }
-        document.getElementById('prompt').textContent = promptsQueue.join(' '); // Update displayed prompts
         this.value = ''; // Clear the input for the next word
+        generateNewPrompt(); // Generate a new word prompt
         updateResults();
     }
 });
@@ -111,8 +106,10 @@ function endTest() {
     document.getElementById('results').textContent = `Final WPM: ${wpm}, Final Accuracy: ${accuracy}%`;
 }
 
-// Initial setup to display words before typing
-generateNewPrompts(); // Display initial prompts when the page loads
+// Initial setup to display the first word
+document.addEventListener('DOMContentLoaded', () => {
+    generateNewPrompt(); // Display initial prompt when the page loads
+});
 
 // Listen for the Escape key to start a new test
 document.addEventListener('keydown', function(event) {
@@ -130,5 +127,6 @@ function resetTest() {
     document.getElementById('timer').textContent = '15'; // Reset timer
     document.getElementById('prompt').textContent = ''; // Clear prompt
     document.getElementById('input').value = ''; // Clear input
-    promptsQueue = []; // Clear the prompts queue
+    currentPrompt = ""; // Clear the current prompt
+    generateNewPrompt(); // Generate a new prompt for the new test
 }
