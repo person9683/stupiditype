@@ -28,6 +28,7 @@ let totalWordsTyped = 0; // Track total words typed
 let testStarted = false;
 let currentWords = []; // Array to hold the current 10 words
 let typedWords = []; // Array to hold the correctly typed words
+let currentInput = ""; // Track the current input
 
 function getRandomWords(count) {
     const shuffledWords = commonWords.sort(() => 0.5 - Math.random());
@@ -38,6 +39,7 @@ function startTest() {
     totalCharactersTyped = 0;
     correctWordsTyped = 0;
     totalWordsTyped = 0; // Reset total words
+    currentInput = ""; // Reset current input
     document.getElementById('results').textContent = 'WPM: 0, Accuracy: 0%';
     testStarted = true;
     startTime = new Date();
@@ -73,31 +75,37 @@ document.addEventListener('keydown', function(event) {
         startTest();
     }
 
-    // Check if the user pressed a valid key
-    const inputChar = event.key;
+    // Check if the user pressed the space key
+    if (event.key === ' ') {
+        event.preventDefault(); // Prevent default space action
 
-    // Check if the input matches the current word
-    const currentWord = currentWords[0]; // Check against the first word
-    if (inputChar === ' ') { // Space indicates a word is completed
-        if (currentWords.length > 0 && typedWords.join(' ') + ' ' === currentWord) {
-            correctWordsTyped++;
-            totalWordsTyped++; // Increment total words typed
-            typedWords.push(currentWord); // Add the correctly typed word to the list
-            currentWords.shift(); // Remove the typed word
-            if (currentWords.length === 0) {
-                generateNewWords(); // Generate a new set of words if all are typed
+        if (currentInput.length > 0) {
+            const currentWord = currentWords[0];
+
+            // Check if the current input matches the current word
+            if (currentInput === currentWord) {
+                correctWordsTyped++;
+                totalWordsTyped++; // Increment total words typed
+                typedWords.push(currentWord); // Add the correctly typed word to the list
+                currentWords.shift(); // Remove the typed word
+
+                currentInput = ""; // Reset current input
+                if (currentWords.length === 0) {
+                    generateNewWords(); // Generate a new set of words if all are typed
+                }
+                updatePromptDisplay(); // Update the display
+                updateResults(); // Update results after typing
             }
-            updatePromptDisplay(); // Update the display
-            updateResults(); // Update results after typing
         }
-        event.preventDefault(); // Prevent the default space action
+    } else if (event.key.length === 1) { // Check if the key pressed is a character
+        currentInput += event.key; // Add character to current input
     }
 });
 
 function updateResults() {
     const timeElapsed = (new Date() - startTime) / 1000;
     const minutesTaken = timeElapsed / 60;
-    const wpm = Math.round(totalCharactersTyped / 5 / minutesTaken);
+    const wpm = Math.round((totalWordsTyped / minutesTaken)); // Calculate WPM based on words typed
     const accuracy = totalWordsTyped > 0 ? Math.round((correctWordsTyped / totalWordsTyped) * 100) : 0;
 
     document.getElementById('results').textContent = `WPM: ${wpm}, Accuracy: ${accuracy}%`;
@@ -107,7 +115,7 @@ function endTest() {
     clearInterval(timerInterval);
     const timeElapsed = (new Date() - startTime) / 1000;
     const minutesTaken = timeElapsed / 60;
-    const wpm = Math.round(totalCharactersTyped / 5 / minutesTaken);
+    const wpm = Math.round((totalWordsTyped / minutesTaken)); // Calculate WPM based on words typed
     const accuracy = totalWordsTyped > 0 ? Math.round((correctWordsTyped / totalWordsTyped) * 100) : 0;
 
     document.getElementById('results').textContent = `Final WPM: ${wpm}, Final Accuracy: ${accuracy}%`;
@@ -131,9 +139,11 @@ function resetTest() {
     totalCharactersTyped = 0;
     correctWordsTyped = 0;
     totalWordsTyped = 0; // Reset total words
+    currentInput = ""; // Reset current input
     document.getElementById('results').textContent = 'WPM: 0, Accuracy: 0%';
     document.getElementById('timer').textContent = '15';
     document.getElementById('prompt').textContent = '';
     currentWords = [];
     typedWords = []; // Reset typed words
     generateNewWords(); // Generate a new set of words for the new test
+}
