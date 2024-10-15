@@ -111,6 +111,9 @@ function endTest() {
     document.getElementById('results').textContent = `Final WPM: ${wpm}, Final Accuracy: ${accuracy}%`;
 }
 
+// Initial setup to display words before typing
+generateNewPrompts(); // Display initial prompts when the page loads
+
 // Listen for the Escape key to start a new test
 document.addEventListener('keydown', function(event) {
     if (event.key === 'Escape') {
