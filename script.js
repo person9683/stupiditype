@@ -69,7 +69,7 @@ document.getElementById('input').addEventListener('input', function() {
     // Check if the input matches the beginning of the prompts
     const currentPrompt = promptsQueue[0];
     if (currentPrompt.startsWith(inputText)) {
-        document.getElementById('prompt').style.color = 'green'; // Correct input
+        document.getElementById('prompt').style.color = 'black'; // Change color to black on correct input
     } else {
         document.getElementById('prompt').style.color = 'red'; // Incorrect input
     }
