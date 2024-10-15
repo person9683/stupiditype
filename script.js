@@ -95,12 +95,16 @@ document.addEventListener('keydown', function(event) {
                 }
                 updatePromptDisplay(); // Update the display
                 updateResults(); // Update results after typing
+            } else {
+                // Reset current input if incorrect
+                currentInput = ""; 
             }
         }
     } else if (event.key.length === 1) { // Check if the key pressed is a character
         currentInput += event.key; // Add character to current input
-        updatePromptDisplay(); // Update display after each character
     }
+
+    updatePromptDisplay(); // Update display after each character or space
 });
 
 // Update results function
