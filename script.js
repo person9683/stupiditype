@@ -53,6 +53,10 @@ function startTest() {
     }, 1000);
 
     // Generate the initial queue of prompts
+    generateNewPrompts();
+}
+
+function generateNewPrompts() {
     promptsQueue = Array.from({ length: 15 }, getRandomWord);
     document.getElementById('prompt').textContent = promptsQueue.join(' '); // Display the first set of words
 }
@@ -80,7 +84,7 @@ document.getElementById('input').addEventListener('input', function() {
         promptsQueue.shift(); // Remove the completed word
         // Generate a new word if the queue is empty
         if (promptsQueue.length === 0) {
-            promptsQueue = Array.from({ length: 15 }, getRandomWord);
+            generateNewPrompts(); // Generate new prompts
         }
         document.getElementById('prompt').textContent = promptsQueue.join(' '); // Update displayed prompts
         this.value = ''; // Clear the input for the next word
