@@ -26,18 +26,18 @@ let totalCharactersTyped = 0;
 let correctWordsTyped = 0;
 let totalWordsTyped = 0; // Track total words typed
 let testStarted = false;
-let currentPrompt = "";
+let currentWords = []; // Array to hold the current 10 words
+let typedWords = []; // Array to hold the correctly typed words
 
-function getRandomWord() {
+function getRandomWords(count) {
     const shuffledWords = commonWords.sort(() => 0.5 - Math.random());
-    return shuffledWords[0]; // Get one random word
+    return shuffledWords.slice(0, count); // Get 'count' random words
 }
 
 function startTest() {
     totalCharactersTyped = 0;
     correctWordsTyped = 0;
     totalWordsTyped = 0; // Reset total words
-    document.getElementById('input').value = '';
     document.getElementById('results').textContent = 'WPM: 0, Accuracy: 0%';
     testStarted = true;
     startTime = new Date();
@@ -52,37 +52,45 @@ function startTest() {
             endTest();
         }
     }, 1000);
+
+    generateNewWords(); // Generate initial set of words
 }
 
-function generateNewPrompt() {
-    currentPrompt = getRandomWord();
-    document.getElementById('prompt').textContent = currentPrompt;
-    document.getElementById('prompt').style.color = 'gray';
+function generateNewWords() {
+    currentWords = getRandomWords(10); // Get 10 random words
+    updatePromptDisplay(); // Display the words
 }
 
-document.getElementById('input').addEventListener('input', function() {
-    const inputText = this.value;
-    totalCharactersTyped += inputText.length;
+function updatePromptDisplay() {
+    const promptText = currentWords.join(' ');
+    const typedText = typedWords.join(' ');
+    document.getElementById('prompt').innerHTML = `<span style="color: gray;">${promptText}</span><br/><span style="color: green;">${typedText}</span>`;
+}
 
-    // Start the test on the first input
+document.addEventListener('keydown', function(event) {
+    // Start the test on the first key press
     if (!testStarted) {
-        startTest(); // Start the test
+        startTest();
     }
 
-    // Check if the input matches the current prompt
-    if (currentPrompt.startsWith(inputText)) {
-        document.getElementById('prompt').style.color = 'black';
-    } else {
-        document.getElementById('prompt').style.color = 'red';
-    }
+    // Check if the user pressed a valid key
+    const inputChar = event.key;
 
-    // Check if user has completed typing the current word
-    if (inputText === currentPrompt) {
-        correctWordsTyped++;
-        totalWordsTyped++; // Increment total words typed
-        this.value = ''; // Clear the input for the next word
-        generateNewPrompt(); // Generate a new word prompt
-        updateResults();
+    // Check if the input matches the current word
+    const currentWord = currentWords[0]; // Check against the first word
+    if (inputChar === ' ') { // Space indicates a word is completed
+        if (currentWords.length > 0 && typedWords.join(' ') + ' ' === currentWord) {
+            correctWordsTyped++;
+            totalWordsTyped++; // Increment total words typed
+            typedWords.push(currentWord); // Add the correctly typed word to the list
+            currentWords.shift(); // Remove the typed word
+            if (currentWords.length === 0) {
+                generateNewWords(); // Generate a new set of words if all are typed
+            }
+            updatePromptDisplay(); // Update the display
+            updateResults(); // Update results after typing
+        }
+        event.preventDefault(); // Prevent the default space action
     }
 });
 
@@ -105,9 +113,9 @@ function endTest() {
     document.getElementById('results').textContent = `Final WPM: ${wpm}, Final Accuracy: ${accuracy}%`;
 }
 
-// Initial setup to display the first word
+// Initial setup to display the first set of words
 document.addEventListener('DOMContentLoaded', () => {
-    generateNewPrompt(); // Display initial prompt when the page loads
+    generateNewWords(); // Display initial words when the page loads
 });
 
 // Listen for the Escape key to start a new test
@@ -126,7 +134,6 @@ function resetTest() {
     document.getElementById('results').textContent = 'WPM: 0, Accuracy: 0%';
     document.getElementById('timer').textContent = '15';
     document.getElementById('prompt').textContent = '';
-    document.getElementById('input').value = '';
-    currentPrompt = "";
-    generateNewPrompt(); // Generate a new prompt for the new test
-}
+    currentWords = [];
+    typedWords = []; // Reset typed words
+    generateNewWords(); // Generate a new set of words for the new test
