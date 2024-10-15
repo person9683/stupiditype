@@ -1,4 +1,5 @@
 const commonWords = [
+const commonWords = [
     "the", "be", "to", "of", "and", "a", "in", "that", "have", "it",
     "you", "he", "will", "not", "this", "but", "from", "or", "which", "one",
     "would", "all", "said", "there", "use", "each", "the", "she", "do", "how",
@@ -123,6 +124,4 @@ function resetTest() {
     document.getElementById('timer').textContent = '15'; // Reset timer
     document.getElementById('prompt').textContent = ''; // Clear prompt
     document.getElementById('input').value = ''; // Clear input
-    document.getElementById('input').style.opacity = 0.5; // Reset opacity for input
-    promptsQueue = []; // Clear the prompts queue
-}
+   
