@@ -21,26 +21,51 @@ const commonWords = [
     "give", "three", "man", "woman", "well", "tell", "let", "try", "course", "area"
 ];
 
-let startTime, endTime;
-let currentPrompt = '';
-let testStarted = false; // Track whether the test has started
+let startTime, timerInterval;
+let totalCharactersTyped = 0;
+let correctWordsTyped = 0;
+let testStarted = false;
 
-function getRandomWords(numWords) {
+function getRandomWord() {
     const shuffledWords = commonWords.sort(() => 0.5 - Math.random());
-    return shuffledWords.slice(0, numWords).join(' ');
+    return shuffledWords[0]; // Get one random word
 }
 
 function startTest() {
-    currentPrompt = getRandomWords(10); // Change 10 to the desired number of words
-    document.getElementById('prompt').textContent = currentPrompt;
+    totalCharactersTyped = 0;
+    correctWordsTyped = 0;
     document.getElementById('input').value = '';
-    document.getElementById('results').textContent = ''; // Clear results
+    document.getElementById('results').textContent = 'WPM: 0, Accuracy: 0%'; // Reset results
     testStarted = true; // Mark that the test has started
     startTime = new Date();
+    
+    // Start the timer
+    let timeLeft = 15;
+    document.getElementById('timer').textContent = `Time: ${timeLeft}s`;
+
+    timerInterval = setInterval(() => {
+        timeLeft--;
+        document.getElementById('timer').textContent = `Time: ${timeLeft}s`;
+        if (timeLeft <= 0) {
+            endTest();
+        }
+    }, 1000);
+
+    // Start generating prompts
+    generateNewPrompt();
 }
+
+function generateNewPrompt() {
+    const currentPrompt = getRandomWord();
+    document.getElementById('prompt').textContent = currentPrompt;
+    return currentPrompt;
+}
+
+let currentPrompt = generateNewPrompt();
 
 document.getElementById('input').addEventListener('input', function() {
     const inputText = this.value;
+    totalCharactersTyped += inputText.length;
 
     // Start the test on the first input
     if (!testStarted) {
@@ -54,22 +79,32 @@ document.getElementById('input').addEventListener('input', function() {
         document.getElementById('prompt').style.color = 'red'; // Incorrect input
     }
 
-    // Check if user has completed typing
+    // Check if user has completed typing the prompt
     if (inputText === currentPrompt) {
-        endTest();
+        correctWordsTyped++;
+        generateNewPrompt(); // Get a new word
+        this.value = ''; // Clear the input for the next word
+        updateResults();
     }
 });
 
-function endTest() {
-    endTime = new Date();
-    const timeTaken = (endTime - startTime) / 1000; // Time taken in seconds
-    const charactersTyped = document.getElementById('input').value.length; // Total characters typed
-
-    const minutesTaken = timeTaken / 60; // Convert time taken to minutes
-    const wpm = Math.round(charactersTyped / 5 / minutesTaken); // WPM calculation
-    const accuracy = Math.round((charactersTyped / currentPrompt.length) * 100); // Accuracy calculation
+function updateResults() {
+    const timeElapsed = (new Date() - startTime) / 1000; // Time in seconds
+    const minutesTaken = timeElapsed / 60; // Convert time taken to minutes
+    const wpm = Math.round(totalCharactersTyped / 5 / minutesTaken); // WPM calculation
+    const accuracy = Math.round((correctWordsTyped / (correctWordsTyped + 1)) * 100); // Accuracy calculation
 
     document.getElementById('results').textContent = `WPM: ${wpm}, Accuracy: ${accuracy}%`;
+}
+
+function endTest() {
+    clearInterval(timerInterval); // Stop the timer
+    const timeElapsed = (new Date() - startTime) / 1000; // Time taken in seconds
+    const minutesTaken = timeElapsed / 60; // Convert time taken to minutes
+    const wpm = Math.round(totalCharactersTyped / 5 / minutesTaken); // WPM calculation
+    const accuracy = Math.round((correctWordsTyped / (correctWordsTyped + 1)) * 100); // Final accuracy calculation
+
+    document.getElementById('results').textContent = `Final WPM: ${wpm}, Final Accuracy: ${accuracy}%`;
 }
 
 // Start the test when the page loads
