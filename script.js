@@ -23,6 +23,7 @@ const commonWords = [
 
 let startTime, endTime;
 let currentPrompt = '';
+let testStarted = false; // Track whether the test has started
 
 function getRandomWords(numWords) {
     const shuffledWords = commonWords.sort(() => 0.5 - Math.random());
@@ -34,11 +35,17 @@ function startTest() {
     document.getElementById('prompt').textContent = currentPrompt;
     document.getElementById('input').value = '';
     document.getElementById('results').textContent = ''; // Clear results
+    testStarted = true; // Mark that the test has started
     startTime = new Date();
 }
 
 document.getElementById('input').addEventListener('input', function() {
     const inputText = this.value;
+
+    // Start the test on the first input
+    if (!testStarted) {
+        startTest();
+    }
 
     // Check if input matches the prompt
     if (currentPrompt.startsWith(inputText)) {
