@@ -75,7 +75,7 @@ document.addEventListener('keydown', function(event) {
         startTest();
     }
 
-    // Check if the user pressed the space key
+    // Handle space key
     if (event.key === ' ') {
         event.preventDefault(); // Prevent default space action
 
@@ -99,14 +99,7 @@ document.addEventListener('keydown', function(event) {
         }
     } else if (event.key.length === 1) { // Check if the key pressed is a character
         currentInput += event.key; // Add character to current input
-    }
-});
-
-// Handle input for the first word
-document.addEventListener('keydown', function(event) {
-    // Start the test on the first key press
-    if (!testStarted) {
-        startTest();
+        updatePromptDisplay(); // Update display after each character
     }
 });
 
